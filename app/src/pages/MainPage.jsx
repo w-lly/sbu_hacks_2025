@@ -18,7 +18,7 @@ export const MainPage = () => {
 
 if (isLoading) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-transparent">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-themebg">
       <img
         src={umiGif}
         alt="U-mi loading animation"
@@ -31,15 +31,13 @@ if (isLoading) {
 }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="bg-themebg min-h-screen flex flex-col items-center justify-center p-4">
       <button
         onClick={handleEnter}
         className="group relative"
       >       
         {/* Main button */}
-        <div className="relative text-7xl sm:text-8xl md:text-9xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 text-transparent bg-clip-text px-8 sm:px-16 py-6 sm:py-12 rounded-3xl hover:scale-105 transition-transform duration-300 bg-white/10 backdrop-blur-sm border border-white/20">
-          U-mi
-        </div>
+        <div className="relative text-7xl sm:text-8xl md:text-9xl font-bold bg-gradient-to-r from-themesecondary via-themeprimary to-themeaccent text-transparent bg-clip-text px-8 sm:px-16 py-6 sm:py-12 rounded-3xl hover:scale-105 transition-transform duration-300 bg-white/10 backdrop-blur-sm border border-white/20">U-mi</div>
       </button>
     </div>
   );

@@ -1,10 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, ChevronLeft, ChevronRight, Link2, FileText, Image, Edit2 } from 'lucide-react';
-import { useAppStore } from '../store/useAppStore';
-import { themes } from '../utils/themes';
-import { db } from '../db/database';
+import React, { useState, useEffect } from "react";
+import {
+  Plus,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  Link2,
+  FileText,
+  Image,
+  Edit2,
+} from "lucide-react";
+import { useAppStore } from "../store/useAppStore";
+import { themes } from "../utils/themes";
+import { db } from "../db/database";
+import leftArrow from "../components/arrow.gif";
 
-const FeatureCard = ({ field, objects, onUpdate, onDelete, onNavigate, theme }) => {
+const FeatureCard = ({
+  field,
+  objects,
+  onUpdate,
+  onDelete,
+  onNavigate,
+  theme,
+}) => {
   const t = themes[theme];
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(field.value);
@@ -16,26 +33,30 @@ const FeatureCard = ({ field, objects, onUpdate, onDelete, onNavigate, theme }) 
 
   const getIcon = () => {
     switch (field.type) {
-      case 'link':
+      case "link":
         return <Link2 size={20} className="text-blue-500" />;
-      case 'file':
-        return field.value?.startsWith('data:image') 
-          ? <Image size={20} className="text-green-500" />
-          : <FileText size={20} className="text-purple-500" />;
+      case "file":
+        return field.value?.startsWith("data:image") ? (
+          <Image size={20} className="text-green-500" />
+        ) : (
+          <FileText size={20} className="text-purple-500" />
+        );
       default:
         return <FileText size={20} className="text-gray-500" />;
     }
   };
 
   return (
-    <div className={`${t.card} p-4 sm:p-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 group`}>
+    <div
+      className={`${t.card} p-4 sm:p-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 group`}
+    >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           {getIcon()}
           <h3 className="font-semibold text-sm sm:text-base">{field.label}</h3>
         </div>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          {field.type === 'text' && (
+          {field.type === "text" && (
             <button
               onClick={() => setIsEditing(!isEditing)}
               className="p-1 hover:bg-gray-100 rounded transition-colors"
@@ -53,15 +74,18 @@ const FeatureCard = ({ field, objects, onUpdate, onDelete, onNavigate, theme }) 
       </div>
 
       <div className="mt-2">
-        {field.type === 'link' ? (
+        {field.type === "link" ? (
           <button
             onClick={() => onNavigate(field.value)}
             className="text-blue-500 hover:text-blue-700 hover:underline flex items-center gap-1 text-sm sm:text-base"
           >
-            <span>{objects.find(o => o.id === parseInt(field.value))?.name || 'Unknown'}</span>
+            <span>
+              {objects.find((o) => o.id === parseInt(field.value))?.name ||
+                "Unknown"}
+            </span>
             <ChevronRight size={16} />
           </button>
-        ) : field.type === 'file' ? (
+        ) : field.type === "file" ? (
           <a
             href={field.value}
             download={field.label}
@@ -96,8 +120,10 @@ const FeatureCard = ({ field, objects, onUpdate, onDelete, onNavigate, theme }) 
             </div>
           </div>
         ) : (
-          <p className={`${t.textSecondary} text-sm sm:text-base whitespace-pre-wrap`}>
-            {field.value || 'No content'}
+          <p
+            className={`${t.textSecondary} text-sm sm:text-base whitespace-pre-wrap`}
+          >
+            {field.value || "No content"}
           </p>
         )}
       </div>
@@ -106,15 +132,15 @@ const FeatureCard = ({ field, objects, onUpdate, onDelete, onNavigate, theme }) 
 };
 
 export const ObjectDetailPage = () => {
-  const { 
-    theme, 
+  const {
+    theme,
     selectedObject,
-    setCurrentPage, 
+    setCurrentPage,
     breadcrumbs,
     setBreadcrumbs,
-    setSelectedObject 
+    setSelectedObject,
   } = useAppStore();
-  
+
   const [fields, setFields] = useState([]);
   const [files, setFiles] = useState([]);
   const [objects, setObjects] = useState([]);
@@ -129,11 +155,11 @@ export const ObjectDetailPage = () => {
 
   const loadObjectData = async () => {
     const allFields = await db.objectFields.toArray();
-    const f = allFields.filter(field => field.objectId === selectedObject.id);
+    const f = allFields.filter((field) => field.objectId === selectedObject.id);
     setFields(f);
 
     const allFiles = await db.files.toArray();
-    const fl = allFiles.filter(file => file.objectId === selectedObject.id);
+    const fl = allFiles.filter((file) => file.objectId === selectedObject.id);
     setFiles(fl);
 
     const o = await db.objects.toArray();
@@ -141,28 +167,28 @@ export const ObjectDetailPage = () => {
   };
 
   const addField = async (type) => {
-    const label = prompt('Field label:');
+    const label = prompt("Field label:");
     if (!label || !label.trim()) return;
 
-    let value = '';
-    if (type === 'link') {
-      const linkedObjName = prompt('Link to object (enter name):');
-      const linkedObj = objects.find(o => o.name === linkedObjName);
+    let value = "";
+    if (type === "link") {
+      const linkedObjName = prompt("Link to object (enter name):");
+      const linkedObj = objects.find((o) => o.name === linkedObjName);
       if (linkedObj) {
         value = linkedObj.id.toString();
       } else {
-        alert('Object not found');
+        alert("Object not found");
         return;
       }
-    } else if (type === 'text') {
-      value = prompt('Field value:') || '';
+    } else if (type === "text") {
+      value = prompt("Field value:") || "";
     }
-    
-    await db.objectFields.add({ 
-      objectId: selectedObject.id, 
-      type, 
-      label: label.trim(), 
-      value 
+
+    await db.objectFields.add({
+      objectId: selectedObject.id,
+      type,
+      label: label.trim(),
+      value,
     });
     loadObjectData();
     setShowAddMenu(false);
@@ -176,9 +202,9 @@ export const ObjectDetailPage = () => {
     reader.onload = async (e) => {
       await db.objectFields.add({
         objectId: selectedObject.id,
-        type: 'file',
+        type: "file",
         label: file.name,
-        value: e.target.result
+        value: e.target.result,
       });
       loadObjectData();
     };
@@ -187,7 +213,7 @@ export const ObjectDetailPage = () => {
   };
 
   const deleteField = async (id) => {
-    if (confirm('Delete this field?')) {
+    if (confirm("Delete this field?")) {
       await db.objectFields.delete(id);
       loadObjectData();
     }
@@ -199,7 +225,7 @@ export const ObjectDetailPage = () => {
   };
 
   const navigateToLinkedObject = async (fieldValue) => {
-    const linkedObj = objects.find(o => o.id === parseInt(fieldValue));
+    const linkedObj = objects.find((o) => o.id === parseInt(fieldValue));
     if (linkedObj) {
       setSelectedObject(linkedObj);
       setBreadcrumbs([...breadcrumbs, { name: linkedObj.name }]);
@@ -208,7 +234,7 @@ export const ObjectDetailPage = () => {
 
   const goBack = () => {
     setBreadcrumbs(breadcrumbs.slice(0, -1));
-    setCurrentPage('group-detail');
+    setCurrentPage("group-detail");
   };
 
   if (!selectedObject) return null;
@@ -218,14 +244,22 @@ export const ObjectDetailPage = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <button 
-            onClick={goBack} 
+          <button
+            onClick={goBack}
             className={`p-2 rounded-xl ${t.card} shadow hover:shadow-lg transition-all`}
           >
-            <ChevronLeft size={24} />
+            <img
+              src={leftArrow}
+              style={{
+                filter:
+                  "invert(24%) sepia(63%) saturate(320%) hue-rotate(5deg) brightness(92%) contrast(96%)",
+              }}
+            ></img>
           </button>
           <div className="flex-1">
-            <div className={`text-xs sm:text-sm ${t.textSecondary} flex items-center gap-1 flex-wrap`}>
+            <div
+              className={`text-xs sm:text-sm ${t.textSecondary} flex items-center gap-1 flex-wrap`}
+            >
               {breadcrumbs.map((crumb, idx) => (
                 <React.Fragment key={idx}>
                   <span>{crumb.name}</span>
@@ -233,7 +267,9 @@ export const ObjectDetailPage = () => {
                 </React.Fragment>
               ))}
             </div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mt-1">{selectedObject.name}</h1>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mt-1">
+              {selectedObject.name}
+            </h1>
           </div>
         </div>
 
@@ -249,20 +285,22 @@ export const ObjectDetailPage = () => {
 
           {showAddMenu && (
             <>
-              <div 
-                className="fixed inset-0 z-10" 
+              <div
+                className="fixed inset-0 z-10"
                 onClick={() => setShowAddMenu(false)}
               />
-              <div className={`absolute top-full left-0 mt-2 ${t.card} rounded-xl shadow-xl z-20 overflow-hidden min-w-48`}>
+              <div
+                className={`absolute top-full left-0 mt-2 ${t.card} rounded-xl shadow-xl z-20 overflow-hidden min-w-48`}
+              >
                 <button
-                  onClick={() => addField('text')}
+                  onClick={() => addField("text")}
                   className="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
                 >
                   <FileText size={18} />
                   <span>Text Field</span>
                 </button>
                 <button
-                  onClick={() => addField('link')}
+                  onClick={() => addField("link")}
                   className="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
                 >
                   <Link2 size={18} />
@@ -294,7 +332,9 @@ export const ObjectDetailPage = () => {
         </div>
 
         {fields.length === 0 && (
-          <div className={`${t.card} p-8 rounded-xl text-center ${t.textSecondary}`}>
+          <div
+            className={`${t.card} p-8 rounded-xl text-center ${t.textSecondary}`}
+          >
             <p>No features yet. Add one above to get started!</p>
           </div>
         )}

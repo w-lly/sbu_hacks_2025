@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { themes } from '../utils/themes';
+import leftArrow from "../components/arrow.gif";
 import { db } from '../db/database';
 import {
   DndContext,
@@ -54,7 +55,7 @@ const SortableObject = ({ object, onClick, onDelete, theme }) => {
         >
           <div className="flex flex-col gap-1">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="w-1 h-1 rounded-full bg-purple-400"></div>
+              <div key={i} className="w-1 h-1 rounded-full bg-themeprimary"></div>
             ))}
           </div>
         </div>
@@ -155,7 +156,7 @@ export const GroupDetailPage = () => {
 
   const goBack = () => {
     if (showSplitView) {
-      setCurrentPage('menu');
+      setCurrentPage('groups');
       setBreadcrumbs([]);
     } else {
       const prevPage = customPageId ? `custom-${customPageId}` : 'groups';
@@ -230,7 +231,13 @@ export const GroupDetailPage = () => {
               onClick={goBack} 
               className={`p-2 rounded-xl ${t.card} shadow hover:shadow-lg transition-all`}
             >
-              <ChevronLeft size={24} />
+              <img
+                src={leftArrow}
+                style={{
+                  filter:
+                    "invert(24%) sepia(63%) saturate(320%) hue-rotate(5deg) brightness(92%) contrast(96%)",
+                }}
+              ></img>
             </button>
             <div>
               <div className={`text-xs sm:text-sm ${t.textSecondary} flex items-center gap-1`}>
@@ -253,7 +260,7 @@ export const GroupDetailPage = () => {
               onChange={(e) => setNewObjectName(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && addObject()}
               placeholder="New object name..."
-              className={`flex-1 px-4 py-3 rounded-xl ${t.input} border focus:ring-2 focus:ring-purple-400 outline-none transition-all text-sm sm:text-base`}
+              className={`flex-1 px-4 py-3 rounded-xl ${t.input} border focus:ring-2 focus:ring-themeaccent outline-none transition-all text-sm sm:text-base`}
             />
             <button 
               onClick={addObject} 
