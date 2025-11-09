@@ -29,7 +29,7 @@ export const Layout = ({ children, showSettings = true, showAvatar = true }) => 
     <div className={`min-h-screen ${t.bg} ${t.text} relative`}>
       {/* Avatar (Top Right Corner when not fullscreen) */}
       {showAvatar && avatarConfig && !splitViewFullscreen && (
-        <div className="absolute top-4 right-4 z-40">
+        <div className="absolute top-4 right-4 z-100">
           <Avatar 
             config={avatarConfig} 
             size="sm" 

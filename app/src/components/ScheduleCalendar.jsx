@@ -129,7 +129,7 @@ export const ScheduleCalendar = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsZoomed(!isZoomed)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-all"
+            className={`p-2 hover:bg-gray-100 rounded-lg transition-all ${isZoomed ? 'mt-2 mr-23' : ''}`}
             title={isZoomed ? "Zoom out" : "Zoom in"}
           >
             {isZoomed ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
