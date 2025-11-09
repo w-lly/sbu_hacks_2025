@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Trash2, ChevronLeft, Calendar, X } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { themes } from '../utils/themes';
+import leftArrow from "../components/arrow.gif";
 import { db } from '../db/database';
 import { ScheduleCalendar } from '../components/ScheduleCalendar';
 import {
@@ -89,7 +90,7 @@ const SortableObject = ({ object, onClick, onDelete, theme, duration, onDuration
         >
           <div className="flex flex-col gap-1">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="w-1 h-1 rounded-full bg-purple-400"></div>
+              <div key={i} className="w-1 h-1 rounded-full bg-themeprimary"></div>
             ))}
           </div>
         </div>
@@ -106,7 +107,7 @@ const SortableObject = ({ object, onClick, onDelete, theme, duration, onDuration
               min="0"
               max="96"
               step="1"
-              className="w-16 px-2 py-1 text-xs border rounded focus:ring-2 focus:ring-purple-400 outline-none"
+              className="w-16 px-2 py-1 text-xs border rounded focus:ring-2 focus:ring-themeaccent outline-none"
             />
             <span className="text-xs text-gray-600">× 15min</span>
           </div>
@@ -175,7 +176,7 @@ const EditDurationModal = ({ scheduleItem, onClose, onSave, objectColor }) => {
               min="0"
               max="96"
               step="1"
-              className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-400 outline-none"
+              className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-themeaccent outline-none"
             />
             <span className="text-sm text-gray-600">= {formatDuration(duration)}</span>
           </div>
@@ -190,7 +191,7 @@ const EditDurationModal = ({ scheduleItem, onClose, onSave, objectColor }) => {
           </button>
           <button
             onClick={() => onSave(duration)}
-            className="flex-1 px-4 py-2 bg-purple-400 text-white rounded-lg hover:bg-purple-500 transition-all"
+            className="flex-1 px-4 py-2 bg-themeaccent text-white rounded-lg hover:opacity-90 transition-all"
           >
             Save
           </button>
@@ -465,14 +466,20 @@ export const GroupDetailPage = () => {
       onDragEnd={handleDragEnd}
     >
       <div className="min-h-screen p-4 sm:p-6 md:p-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="w-full mx-auto">
           {/* Header */}
           <div className="flex items-center gap-3 mb-6">
             <button 
               onClick={goBack} 
               className={`p-2 rounded-xl ${t.card} shadow hover:shadow-lg transition-all`}
             >
-              <ChevronLeft size={24} />
+              <img
+                src={leftArrow}
+                style={{
+                  filter:
+                    "invert(24%) sepia(63%) saturate(320%) hue-rotate(5deg) brightness(92%) contrast(96%)",
+                }}
+              />
             </button>
             <div className="flex-1">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">{group.name}</h1>
@@ -487,12 +494,12 @@ export const GroupDetailPage = () => {
               onChange={(e) => setNewObjectName(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && addObject()}
               placeholder="New object name..."
-              className={`flex-1 px-4 py-3 rounded-xl ${t.input} border focus:ring-2 focus:ring-purple-400 outline-none transition-all text-sm sm:text-base`}
+              className={`flex-1 px-4 py-3 rounded-xl ${t.input} border focus:ring-2 focus:ring-themeaccent outline-none transition-all text-sm sm:text-base`}
             />
             <select
               value={newObjectDuration}
               onChange={(e) => setNewObjectDuration(parseInt(e.target.value))}
-              className={`px-3 py-3 rounded-xl ${t.input} border focus:ring-2 focus:ring-purple-400 outline-none transition-all text-sm sm:text-base max-h-48 overflow-y-auto`}
+              className={`px-3 py-3 rounded-xl ${t.input} border focus:ring-2 focus:ring-themeaccent outline-none transition-all text-sm sm:text-base max-h-48 overflow-y-auto`}
             >
               {Array.from({ length: 97 }, (_, i) => {
                 const totalMinutes = i * 15;
@@ -524,7 +531,7 @@ export const GroupDetailPage = () => {
               onClick={() => setShowSchedule(!showSchedule)}
               className={`px-4 py-3 rounded-xl shadow hover:shadow-lg transition-all ${
                 showSchedule 
-                  ? 'bg-purple-400 text-white hover:bg-purple-500' 
+                  ? 'bg-themeaccent text-white hover:opacity-90' 
                   : `${t.card}`
               }`}
               title={showSchedule ? "Hide schedule" : "Show schedule"}

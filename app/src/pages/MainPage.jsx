@@ -1,36 +1,44 @@
-import React from 'react';
-import { useAppStore } from '../store/useAppStore';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useAppStore } from "../store/useAppStore";
+import { useNavigate } from "react-router-dom";
+import umiGif from "../components/umi.gif";
 
 export const MainPage = () => {
   const navigate = useNavigate();
-  const { setShowSplitView, setSelectedMenuItem } = useAppStore();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleEnter = () => {
-    setShowSplitView(false);
-    setSelectedMenuItem?.(null);
-    navigate('menu');
+    // Show loading screen
+    setIsLoading(true);
+
+    // Simulate loading (1.8 seconds), then go to Menu page
+    setTimeout(() => {
+      navigate("menu");
+    }, 1800);
   };
 
+  if (isLoading) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-themebg">
+      <img
+        src={umiGif}
+        alt="U-mi loading animation"
+        className="w-80 sm:w-96 md:w-[28rem] lg:w-[32rem] xl:w-[36rem] animate-pulse transition-transform duration-700"
+        style={{
+          filter: 'invert(45%) sepia(80%) saturate(260%) hue-rotate(255deg) brightness(1) contrast(1.2)' }}
+        />
+    </div>
+  );
+}
+
+  return (
+    <div className="bg-themebg min-h-screen flex flex-col items-center justify-center p-4">
       <button
         onClick={handleEnter}
         className="group relative"
-      >
-        {/* Rest of your button code */}
-        {/* Glow effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-3xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-300" />
-        
+      >       
         {/* Main button */}
-        <div className="relative text-7xl sm:text-8xl md:text-9xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 text-transparent bg-clip-text px-8 sm:px-16 py-6 sm:py-12 rounded-3xl hover:scale-105 transition-transform duration-300 bg-white/10 backdrop-blur-sm border border-white/20">
-          U-mi
-        </div>
-        
-        {/* Subtitle */}
-        <p className="text-center mt-4 text-sm sm:text-base text-gray-600 dark:text-gray-400">
-          Click to enter
-        </p>
+        <div className="relative text-7xl sm:text-8xl md:text-9xl font-bold bg-gradient-to-r from-themesecondary via-themeprimary to-themeaccent text-transparent bg-clip-text px-8 sm:px-16 py-6 sm:py-12 rounded-3xl hover:scale-105 transition-transform duration-300 bg-white/10 backdrop-blur-sm border border-white/20">U-mi</div>
       </button>
     </div>
   );

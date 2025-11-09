@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import leftArrow from '../components/arrow.gif';
+import { Plus, Trash2, ArrowLeft } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { themes } from '../utils/themes';
 import { db } from '../db/database';
@@ -61,8 +63,8 @@ const SortableTodo = ({ todo, onToggle, onDelete, theme }) => {
         <span className={`flex-1 text-sm sm:text-base ${todo.completed ? 'line-through opacity-50' : ''}`}>
           {todo.text}
         </span>
-        <button 
-          onClick={() => onDelete(todo.id)} 
+        <button
+          onClick={() => onDelete(todo.id)}
           className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors"
         >
           <Trash2 size={18} />
@@ -73,10 +75,12 @@ const SortableTodo = ({ todo, onToggle, onDelete, theme }) => {
 };
 
 export const TodoPage = ({ embedded = false }) => {
-  const { theme } = useAppStore();
+  const { theme, setCurrentPage } = useAppStore();
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState('');
   const t = themes[theme];
+
+  const navigate = useNavigate();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -129,12 +133,31 @@ export const TodoPage = ({ embedded = false }) => {
       }
     }
   };
+  const goToMenu = () => {
+    navigate('/menu');
+  };
 
   return (
     <div className={`${embedded ? '' : 'min-h-screen'} p-4 sm:p-6 md:p-8`}>
       <div className="max-w-3xl mx-auto">
         {!embedded && (
-          <h1 className="text-2xl sm:text-3xl font-bold mb-6">To-Do List</h1>
+          <div className='mb-6 flex items-center gap-3'>
+            <button
+              onClick={goToMenu}
+              className={`-mt-5 p-2 rounded-full ${t.card} shadow-md hover:shadow-lg hover:scale-105 transition-all`}
+              title="Back to menu page"
+            >
+              <img
+                src={leftArrow}
+                style={{
+                  filter:
+                    "invert(24%) sepia(63%) saturate(320%) hue-rotate(5deg) brightness(92%) contrast(96%)",
+                }}
+              />
+            </button>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-6">To-Do List</h1>
+          </div>
+
         )}
 
         {/* Add Todo */}
@@ -147,8 +170,8 @@ export const TodoPage = ({ embedded = false }) => {
             placeholder="Add a task..."
             className={`flex-1 px-4 py-3 rounded-xl ${t.input} border focus:ring-2 focus:ring-purple-400 outline-none transition-all text-sm sm:text-base`}
           />
-          <button 
-            onClick={addTodo} 
+          <button
+            onClick={addTodo}
             className={`px-4 sm:px-6 py-3 rounded-xl ${t.button} shadow hover:shadow-lg transition-all`}
           >
             <Plus size={20} />

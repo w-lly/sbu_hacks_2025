@@ -4,6 +4,7 @@ import { Plus, Trash2, ChevronLeft, ChevronRight, Link2, FileText, Image, Edit2 
 import { useAppStore } from '../store/useAppStore';
 import { themes } from '../utils/themes';
 import { db } from '../db/database';
+import leftArrow from '../components/arrow.gif';
 
 const FeatureCard = ({ field, objects, onUpdate, onDelete, onNavigate, theme }) => {
   const t = themes[theme];
@@ -225,14 +226,20 @@ export const ObjectDetailPage = () => {
 
   return (
     <div className="min-h-screen p-4 sm:p-6 md:p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <button 
             onClick={goBack} 
             className={`p-2 rounded-xl ${t.card} shadow hover:shadow-lg transition-all`}
           >
-            <ChevronLeft size={24} />
+            <img
+              src={leftArrow}
+              style={{
+                filter:
+                  "invert(24%) sepia(63%) saturate(320%) hue-rotate(5deg) brightness(92%) contrast(96%)",
+              }}
+            />
           </button>
           <div className="flex-1">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mt-1">{object.name}</h1>
@@ -255,7 +262,7 @@ export const ObjectDetailPage = () => {
                 className="fixed inset-0 z-10" 
                 onClick={() => setShowAddMenu(false)}
               />
-              <div className={`absolute top-full left-0 mt-2 ${t.card} rounded-xl shadow-xl z-20 overflow-hidden min-w-48`}>
+              <div className={`absolute top-full left-0 bg-themebg mt-2 ${t.card} rounded-xl shadow-xl z-20 overflow-hidden min-w-48`}>
                 <button
                   onClick={() => addField('text')}
                   className="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"

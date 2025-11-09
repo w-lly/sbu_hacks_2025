@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Plus, Trash2, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, ChevronRight, FolderPlus } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { themes } from '../utils/themes';
 import { db } from '../db/database';
+import leftArrow from '../components/arrow.gif';
 import {
   DndContext,
   KeyboardSensor,
@@ -49,6 +50,7 @@ const SortableGroup = ({
   } = useSortable({ id: `group-${group.id}`, data: { type: 'group', group } });
 
   const [isEditing, setIsEditing] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
   const [editName, setEditName] = useState(group.name || '');
   const inputRef = useRef(null);
 
@@ -90,21 +92,26 @@ const SortableGroup = ({
       style={style}
       onMouseEnter={() => setHoveredGroupId(group.id)}
       onMouseLeave={() => setHoveredGroupId(prev => (prev === group.id ? null : prev))}
-      className={`${t.group} p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 
+      className={`${t.group} flex flex-col p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-200 
         ${isDragging ? 'z-50 scale-105' : 'z-0'} cursor-pointer`}
       data-group-wrapper
     >
-      <div className="flex justify-between items-start mb-3">
+      <div className="flex flex col justify-center mb-3">
         <div 
           {...attributes} 
           {...listeners} 
-          className="cursor-grab active:cursor-grabbing mr-2"
+          className="pr-3 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing mr-2"
         >
-          <div className="flex gap-1">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="flex flex-col gap-1">
-                <div className="w-1 h-1 rounded-full bg-purple-400"></div>
-                <div className="w-1 h-1 rounded-full bg-purple-400"></div>
+          <div className="flex flex-col gap-1">
+            {[...Array(3)].map((_, row) => (
+              <div key={row} className="flex gap-1">
+                {[...Array(2)].map((_, col) => (
+                  <div
+                    key={col}
+                    className="w-1 h-1 rounded-full bg-themeprimary"
+                    style={{ opacity: col % 2 === 0 ? 1 : 0.8 }}
+                  ></div>
+                ))}
               </div>
             ))}
           </div>
@@ -134,7 +141,7 @@ const SortableGroup = ({
                     setEditName(group.name || '');
                   }
                 }}
-                className={`w-full px-3 py-2 rounded-md ${t.input} border focus:ring-2 focus:ring-purple-400 outline-none text-sm`}
+                className={`w-full px-3 py-2 rounded-md ${t.input} border focus:ring-2 focus:ring-themeaccent outline-none text-sm`}
               />
             </div>
           )}
@@ -162,7 +169,7 @@ const SortableGroup = ({
         {children}
       </div>
 
-      <div onClick={onClick} className="flex items-center justify-end text-purple-600 dark:text-purple-400 text-sm font-medium mt-3">
+      <div onClick={onClick} className="flex items-center justify-end text-themetext text-sm font-medium mt-3">
         <span>View</span>
         <ChevronRight size={16} />
       </div>
@@ -199,14 +206,14 @@ const SortableObject = ({ object, onClick, theme, onDelete, hoveredObjectId, set
       style={style}
       onMouseEnter={() => setHoveredObjectId(object.id)}
       onMouseLeave={() => setHoveredObjectId(prev => (prev === object.id ? null : prev))}
-      className={`p-3 rounded-lg border ${t.card} flex items-center justify-between gap-3 cursor-pointer`}
+      className={`p-6 rounded-lg border ${t.card} flex items-center justify-between gap-3 cursor-pointer`}
       onClick={(e) => { e.stopPropagation(); onClick(object); }}
       data-object
     >
       <div className="flex items-center gap-3">
         {/* small drag handle visual (not necessary, already draggable) */}
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-          <div className="w-3 h-3 rounded-sm bg-purple-300"></div>
+          <div className="w-3 h-3 rounded-sm bg-themeprimary"></div>
         </div>
         <div>
           <div className="text-sm font-medium">{object.name || `Object ${object.id}`}</div>
@@ -236,6 +243,7 @@ export const GroupsPage = ({ embedded = false }) => {
   const { 
     theme, 
     customPageId: storeCustomPageId,
+    setCurrentPage,
   } = useAppStore();
   
   const [groups, setGroups] = useState([]);
@@ -555,11 +563,28 @@ export const GroupsPage = ({ embedded = false }) => {
     localStorage.setItem(key, pageTitle);
   };
 
+  const goToMenu = () => {
+    navigate('/menu');
+  };
+
   return (
-    <div className={`${embedded ? '' : 'min-h-screen'} p-4 sm:p-6 md:p-8`}>
-      <div className="max-w-6xl mx-auto">
+    <div className={`${embedded ? '' : 'min-h-screen'} p-0`}>
+      <div className="w-full mx-auto p-4 sm:p-6 md:p-8">
         {!embedded && (
-          <div className="mb-6">
+          <div className="mb-6 flex items-center gap-3">
+            <button
+              onClick={goToMenu}
+              className={`p-2 rounded-full ${t.card} shadow-md hover:shadow-lg hover:scale-105 transition-all`}
+              title="Back to menu page"
+            >
+              <img
+                src={leftArrow}
+                style={{
+                  filter: 'invert(24%) sepia(63%) saturate(320%) hue-rotate(5deg) brightness(92%) contrast(96%)',
+                }}
+              />
+            </button>
+
             {!editingPageTitle ? (
               <h1
                 className="text-2xl sm:text-3xl font-bold"
@@ -581,7 +606,7 @@ export const GroupsPage = ({ embedded = false }) => {
                     setEditingPageTitle(false);
                   }
                 }}
-                className={`mt-0 px-2 py-1 rounded ${t.input} border focus:ring-2 focus:ring-purple-400 outline-none text-2xl`}
+                className={`mt-0 px-2 py-1 rounded ${t.input} border focus:ring-2 focus:ring-themeaccent outline-none text-2xl`}
               />
             )}
           </div>
@@ -595,14 +620,13 @@ export const GroupsPage = ({ embedded = false }) => {
             onChange={(e) => setNewGroupName(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && addGroup()}
             placeholder="New group name..."
-            className={`flex-1 px-4 py-3 rounded-xl ${t.input} border focus:ring-2 focus:ring-purple-400 outline-none transition-all text-sm sm:text-base`}
+            className={`flex-1 px-4 py-3 rounded-xl ${t.input} border focus:ring-2 focus:ring-themeaccent outline-none transition-all text-sm sm:text-base`}
           />
           <button 
             onClick={addGroup} 
             className={`px-4 sm:px-6 py-3 rounded-xl ${t.button} shadow hover:shadow-lg transition-all whitespace-nowrap`}
           >
-            <span className="hidden sm:inline">Add Group</span>
-            <Plus size={20} className="sm:hidden" />
+            <span className="font-semibold">Add Group</span>
           </button>
         </div>
 

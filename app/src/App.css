@@ -1,5 +1,31 @@
 @import "tailwindcss";
 
+
+ @layer base{
+  *{
+    font-family: 'Gaegu', serif;
+  }
+ }
+
+ /*
+ #dcd0e0
+ primary:oklch(79.51% 0.025 223.76)
+ #acc0c8*/
+
+
+ @theme
+ {
+  --color-themetext: oklch(32.04% 0.043 55.36);
+  --color-themebg: oklch(97.68% 0.013 86.83);
+  --color-themeprimary: oklch(79.51% 0.025 223.76);
+  --color-themesecondary: oklch(85.55% 0.050 18.18);
+  --color-themeaccent: oklch(81.04% 0.043 116.26);
+
+
+
+ }
+
+
 /* #root {
   max-width: 1280px;
   margin: 0 auto;
