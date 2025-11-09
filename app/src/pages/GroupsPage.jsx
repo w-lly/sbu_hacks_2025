@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Trash2, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, ChevronRight, ArrowLeft } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { themes } from '../utils/themes';
 import { db } from '../db/database';
@@ -89,26 +89,26 @@ const SortableGroup = ({
       style={style}
       onMouseEnter={() => setHoveredGroupId(group.id)}
       onMouseLeave={() => setHoveredGroupId(prev => (prev === group.id ? null : prev))}
-      className={`${t.group} p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 
+      className={`${t.group} p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-200 
         ${isDragging ? 'z-50 scale-105' : 'z-0'} cursor-pointer`}
       data-group-wrapper
     >
-      <div className="flex justify-between items-start mb-3">
-        <div 
-          {...attributes} 
-          {...listeners} 
+      <div className="flex justify-center  mb-3">
+        <div
+          {...attributes}
+          {...listeners}
           className="cursor-grab active:cursor-grabbing mr-2"
         >
-          <div className="flex gap-1">
+          <div className="ml-8 flex gap-1">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="flex flex-col gap-1">
-                <div className="w-1 h-1 rounded-full bg-purple-400"></div>
+                <div className="w-1 h-1 rounded-full bg-purple-500"></div>
                 <div className="w-1 h-1 rounded-full bg-purple-400"></div>
               </div>
             ))}
           </div>
         </div>
-        
+
         {/* Title area: clicking viewGroup, dblclick to edit */}
         <div className="flex-1" onClick={onClick}>
           {!isEditing ? (
@@ -198,7 +198,7 @@ const SortableObject = ({ object, onClick, theme, onDelete, hoveredObjectId, set
       style={style}
       onMouseEnter={() => setHoveredObjectId(object.id)}
       onMouseLeave={() => setHoveredObjectId(prev => (prev === object.id ? null : prev))}
-      className={`p-3 rounded-lg border ${t.card} flex items-center justify-between gap-3 cursor-pointer`}
+      className={`p-6 rounded-lg border ${t.card} flex items-center justify-between gap-3 cursor-pointer`}
       onClick={(e) => { e.stopPropagation(); onClick(object); }}
       data-object
     >
@@ -230,15 +230,15 @@ const SortableObject = ({ object, onClick, theme, onDelete, hoveredObjectId, set
    GroupsPage (main)
    ------------------------- */
 export const GroupsPage = ({ embedded = false }) => {
-  const { 
-    theme, 
-    customPageId, 
-    setSelectedGroup, 
+  const {
+    theme,
+    customPageId,
+    setSelectedGroup,
     setCurrentPage,
     setBreadcrumbs,
     setSelectedObject // optional store method for navigating to object
   } = useAppStore();
-  
+
   const [groups, setGroups] = useState([]);
   const [objects, setObjects] = useState([]);
   const [newGroupName, setNewGroupName] = useState('');
@@ -282,7 +282,7 @@ export const GroupsPage = ({ embedded = false }) => {
 
   const loadGroups = async () => {
     const allGroups = await db.groups.toArray();
-    const filtered = customPageId 
+    const filtered = customPageId
       ? allGroups.filter(g => g.customPageId === customPageId)
       : allGroups.filter(g => !g.customPageId);
     setGroups(filtered.sort((a, b) => (a.order || 0) - (b.order || 0)));
@@ -309,14 +309,14 @@ export const GroupsPage = ({ embedded = false }) => {
   const deleteGroup = async (id) => {
     if (confirm('Delete this group and all its objects?')) {
       await db.groups.delete(id);
-      
+
       const objsToDelete = objects.filter(o => o.groupId === id);
       for (const obj of objsToDelete) {
         await db.objects.delete(obj.id);
         await db.objectFields.where('objectId').equals(obj.id).delete();
         await db.files.where('objectId').equals(obj.id).delete();
       }
-      
+
       loadGroups();
     }
   };
@@ -409,10 +409,10 @@ export const GroupsPage = ({ embedded = false }) => {
 
         const sourceGroupObjects = objects
           .filter(o => o.groupId === sourceGroupId)
-          .sort((a,b) => (a.order || 0) - (b.order || 0));
+          .sort((a, b) => (a.order || 0) - (b.order || 0));
         const targetGroupObjects = objects
           .filter(o => o.groupId === targetGroupId)
-          .sort((a,b) => (a.order || 0) - (b.order || 0));
+          .sort((a, b) => (a.order || 0) - (b.order || 0));
 
         const oldIndex = sourceGroupObjects.findIndex(o => o.id === activeObjectId);
         const newIndex = targetGroupObjects.findIndex(o => o.id === overObjectId);
@@ -478,7 +478,7 @@ export const GroupsPage = ({ embedded = false }) => {
 
         if (sourceGroupId === targetGroupId) {
           // move to end of same group
-          const groupObjs = objects.filter(o => o.groupId === sourceGroupId).sort((a,b)=> (a.order||0)-(b.order||0));
+          const groupObjs = objects.filter(o => o.groupId === sourceGroupId).sort((a, b) => (a.order || 0) - (b.order || 0));
           const oldIndex = groupObjs.findIndex(o => o.id === activeObjectId);
           const newIndex = groupObjs.length - 1;
           if (oldIndex === newIndex) return;
@@ -494,8 +494,8 @@ export const GroupsPage = ({ embedded = false }) => {
           return;
         } else {
           // move to different group and append
-          const sourceObjs = objects.filter(o => o.groupId === sourceGroupId).sort((a,b)=> (a.order||0)-(b.order||0));
-          const targetObjs = objects.filter(o => o.groupId === targetGroupId).sort((a,b)=> (a.order||0)-(b.order||0));
+          const sourceObjs = objects.filter(o => o.groupId === sourceGroupId).sort((a, b) => (a.order || 0) - (b.order || 0));
+          const targetObjs = objects.filter(o => o.groupId === targetGroupId).sort((a, b) => (a.order || 0) - (b.order || 0));
 
           const oldIndex = sourceObjs.findIndex(o => o.id === activeObjectId);
           if (oldIndex === -1) return;
@@ -549,11 +549,24 @@ export const GroupsPage = ({ embedded = false }) => {
     localStorage.setItem(key, pageTitle);
   };
 
+  const goToMenu = () => {
+    setCurrentPage('menu');
+  };
+
   return (
     <div className={`${embedded ? '' : 'min-h-screen'} p-4 sm:p-6 md:p-8`}>
       <div className="max-w-6xl mx-auto">
+
         {!embedded && (
-          <div className="mb-6">
+          <div className="mb-6 flex items-center gap-3">
+            <button
+              onClick={goToMenu}
+              className={`p-2 rounded-full ${t.card} shadow-md hover:shadow-lg hover:scale-105 transition-all`}
+              title="Back to menu page"
+            >
+              <ArrowLeft size={20} />
+            </button>
+
             {!editingPageTitle ? (
               <h1
                 className="text-2xl sm:text-3xl font-bold"
@@ -581,6 +594,7 @@ export const GroupsPage = ({ embedded = false }) => {
           </div>
         )}
 
+
         {/* Add Group */}
         <div className="flex gap-2 mb-6">
           <input
@@ -591,8 +605,8 @@ export const GroupsPage = ({ embedded = false }) => {
             placeholder="New group name..."
             className={`flex-1 px-4 py-3 rounded-xl ${t.input} border focus:ring-2 focus:ring-purple-400 outline-none transition-all text-sm sm:text-base`}
           />
-          <button 
-            onClick={addGroup} 
+          <button
+            onClick={addGroup}
             className={`px-4 sm:px-6 py-3 rounded-xl ${t.button} shadow hover:shadow-lg transition-all whitespace-nowrap`}
           >
             <span className="hidden sm:inline">Add Group</span>
@@ -616,7 +630,7 @@ export const GroupsPage = ({ embedded = false }) => {
                 // objects for this group (sorted)
                 const groupObjects = objects
                   .filter(o => o.groupId === group.id)
-                  .sort((a,b) => (a.order || 0) - (b.order || 0));
+                  .sort((a, b) => (a.order || 0) - (b.order || 0));
 
                 return (
                   <SortableGroup

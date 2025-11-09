@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckSquare, FolderOpen, Plus, Trash2, X } from 'lucide-react';
+import { CheckSquare, FolderOpen, Plus, Trash2, X, ArrowLeft } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { themes } from '../utils/themes';
 import { Avatar } from '../components/Avatar';
@@ -85,6 +85,10 @@ export const MenuPage = () => {
     setCurrentPage('menu');
   };
 
+  const goBackToMain = () => {
+    setCurrentPage('main'); // Go back to MainPage
+  };
+
   const menuItems = [
     { type: 'todos', label: 'To-Do List', icon: CheckSquare, color: 'from-purple-400 to-pink-400' },
     { type: 'groups', label: 'Groups', icon: FolderOpen, color: 'from-blue-400 to-cyan-400' },
@@ -122,7 +126,17 @@ export const MenuPage = () => {
         <div className="p-4 sm:p-6 md:p-8">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold">Menu</h1>
+            <div className="flex items-center gap-3">
+              {/* Back button to main page */}
+              <button
+                onClick={goBackToMain}
+                className={`p-2 rounded-full ${t.card} shadow-md hover:shadow-lg hover:scale-105 transition-all`}
+                title="Back to main page"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <h1 className="text-2xl sm:text-3xl font-bold">Menu</h1>
+            </div>
             <Avatar 
               config={avatarConfig} 
               size="md" 
@@ -140,7 +154,7 @@ export const MenuPage = () => {
                     onClick={() => handleMenuItemClick(item)}
                     className={`w-full ${t.card} p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-2xl 
                       transition-all duration-300 flex flex-col items-center gap-3 sm:gap-4
-                      hover:scale-105 ${selectedMenuItem?.label === item.label ? 'ring-4 ring-purple-400' : ''}`}
+                      hover:scale-105 ${selectedMenuItem?.label === item.label ? 'ring-4 ring-red-500' : ''}`}
                   >
                     <div className={`p-3 sm:p-4 rounded-full bg-gradient-to-br ${item.color}`}>
                       <Icon size={32} className="text-white sm:w-12 sm:h-12" />
@@ -151,8 +165,8 @@ export const MenuPage = () => {
                   {item.type === 'custom' && (
                     <button
                       onClick={(e) => deleteCustomPage(item.id, e)}
-                      className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full 
-                        opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600"
+                      className="absolute top-2 right-2 bg-themeprimary text-white p-2 rounded-full 
+                        opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-themesecondary"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -168,7 +182,7 @@ export const MenuPage = () => {
                 transition-all duration-300 flex flex-col items-center gap-3 sm:gap-4
                 border-2 border-dashed ${t.border} hover:scale-105`}
             >
-              <div className="p-3 sm:p-4 rounded-full bg-gradient-to-br from-gray-300 to-gray-400">
+              <div className="p-3 sm:p-4 rounded-full bg-gradient-to-br from-themeprimary to-themesecondary">
                 <Plus size={32} className="text-white sm:w-12 sm:h-12" />
               </div>
               <span className="font-semibold text-center text-sm sm:text-base">Add Custom</span>
