@@ -16,6 +16,8 @@ import { GroupsPage } from "./GroupsPage";
 import leftArrow from "../components/arrow.gif";
 import x from "../components/x.gif";
 import { useNavigate } from "react-router-dom";
+import { Clock } from "lucide-react";
+import { StudyTimerPage } from "./StudyTimerPage";
 export const MenuPage = () => {
   const {
     theme,
@@ -128,6 +130,12 @@ export const MenuPage = () => {
       icon: CheckSquare,
       colorClass: "bg-themesecondary",
     },
+     {
+    type: "studyTimer",
+    label: "Study Timer",
+    icon: Clock,
+    colorClass: "bg-themeaccent",
+   },
     {
       type: "groups",
       label: "Groups",
@@ -150,6 +158,8 @@ export const MenuPage = () => {
     switch (selectedMenuItem.type) {
       case "todos":
         return <TodoPage embedded />;
+      case "studyTimer":
+      return <StudyTimerPage />;
       case "groups":
       case "custom":
         return <GroupsPage embedded />;

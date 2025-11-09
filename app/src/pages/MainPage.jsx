@@ -25,7 +25,7 @@ export const MainPage = () => {
         alt="U-mi loading animation"
         className="w-80 sm:w-96 md:w-[28rem] lg:w-[32rem] xl:w-[36rem] animate-pulse transition-transform duration-700"
         style={{
-          filter: 'invert(45%) sepia(80%) saturate(260%) hue-rotate(255deg) brightness(1) contrast(1.2)' }}
+          filter: 'invert(42%) sepia(80%) saturate(230%) hue-rotate(255deg) brightness(1) contrast(1)' }}
         />
     </div>
   );
