@@ -166,7 +166,7 @@ export const MenuPage = () => {
       type: "studyTimer",
       label: "Study Timer",
       icon: Clock,
-      colorClass: "bg-themeaccent",
+      colorClass: "bg-[#DACADD]",
     },
     {
       type: 'groups',

@@ -1,17 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { Play, Pause, RotateCcw } from "lucide-react";
+import { db } from '../db/database';
 
 export const StudyTimerPage = () => {
-  const [seconds, setSeconds] = useState(0);
+  const [seconds, setSeconds] = useState(0); // current session
   const [isActive, setIsActive] = useState(false);
+  const [totalTime, setTotalTime] = useState(0); // total saved time from DB
 
+  // Load total study time from DB when component mounts
+  useEffect(() => {
+    async function fetchTotalTime() {
+      const setting = await db.settings.get('studyTime');
+      setTotalTime(setting?.value || 0);
+    }
+    fetchTotalTime();
+  }, []);
+
+  // Timer effect
   useEffect(() => {
     let interval;
     if (isActive) {
       interval = setInterval(() => {
         setSeconds((s) => s + 1);
       }, 1000);
-    } else if (!isActive && seconds !== 0) {
+    } else {
       clearInterval(interval);
     }
     return () => clearInterval(interval);
@@ -21,9 +33,13 @@ export const StudyTimerPage = () => {
     setIsActive(!isActive);
   };
 
-  const resetTimer = () => {
-    setIsActive(false);
-    setSeconds(0);
+  const resetTimer = async () => {
+    // Add current session seconds to totalTime
+    const newTotal = totalTime + seconds;
+    await db.settings.put({ key: 'studyTime', value: newTotal });
+    setTotalTime(newTotal);  // update state
+    setIsActive(false);      // stop timer
+    setSeconds(0);           // reset session
   };
 
   const formatTime = (totalSeconds) => {

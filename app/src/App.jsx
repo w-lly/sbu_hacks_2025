@@ -26,7 +26,16 @@ export default function App() {
 
   useEffect(() => {
     initDB();
+    initStudyTime();
   }, []);
+
+  const initStudyTime = async () => {
+    const existing = await db.settings.get("studyTime");
+    if (!existing) {
+      // Initialize studyTime to 0 if it doesn't exist
+      await db.settings.put({ key: "studyTime", value: 0 });
+    };
+  };
 
   const initDB = async () => {
     // Initialize database
