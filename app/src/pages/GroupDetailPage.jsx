@@ -535,7 +535,7 @@ export const GroupDetailPage = () => {
 
           {/* Schedule Calendar Component */}
           {showSchedule && (
-            <div className='sticky top-0 z-20 bg-white'>
+            <div className='sticky top-0 z-999 bg-white'>
             <ScheduleCalendar
               theme={theme}
               scheduleItems={scheduleItems}
