@@ -18,7 +18,6 @@ export const MenuPage = () => {
     setShowSplitView,
     splitViewFullscreen,
     currentPage,
-    setCurrentPage,
     setCustomPageId
   } = useAppStore();
   
@@ -75,17 +74,14 @@ export const MenuPage = () => {
     setShowSplitView(true);
     if (item.type === 'custom') {
       setCustomPageId(item.id);
-      setCurrentPage('groups');
     } else {
       setCustomPageId(item.id);
-      setCurrentPage(item.type);
     }
   };
 
   const closeSplitView = () => {
     setShowSplitView(false);
     setSelectedMenuItem(null);
-    setCurrentPage('menu');
   };
 
   const menuItems = [
