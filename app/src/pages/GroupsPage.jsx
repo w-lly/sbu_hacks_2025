@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Trash2, ChevronRight } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { themes } from '../utils/themes';
@@ -230,13 +231,11 @@ const SortableObject = ({ object, onClick, theme, onDelete, hoveredObjectId, set
    GroupsPage (main)
    ------------------------- */
 export const GroupsPage = ({ embedded = false }) => {
+  const navigate = useNavigate();
+  const { customPageId: urlCustomPageId } = useParams();
   const { 
     theme, 
-    customPageId, 
-    setSelectedGroup, 
-    setCurrentPage,
-    setBreadcrumbs,
-    setSelectedObject // optional store method for navigating to object
+    customPageId: storeCustomPageId,
   } = useAppStore();
   
   const [groups, setGroups] = useState([]);
@@ -250,6 +249,9 @@ export const GroupsPage = ({ embedded = false }) => {
   // Hover state: track which group or object is hovered to control delete button visibility precisely
   const [hoveredGroupId, setHoveredGroupId] = useState(null);
   const [hoveredObjectId, setHoveredObjectId] = useState(null);
+
+  // Use URL param if available, otherwise use store value
+  const activeCustomPageId = urlCustomPageId || storeCustomPageId;
 
   const t = themes[theme];
 
@@ -268,10 +270,10 @@ export const GroupsPage = ({ embedded = false }) => {
     loadGroups();
 
     // load persisted page title from localStorage (per customPageId)
-    const key = `groupsPageTitle_${customPageId ?? 'default'}`;
+    const key = `groupsPageTitle_${activeCustomPageId ?? 'default'}`;
     const saved = localStorage.getItem(key);
     if (saved) setPageTitle(saved);
-  }, [customPageId]);
+  }, [activeCustomPageId]);
 
   useEffect(() => {
     if (editingPageTitle && pageTitleRef.current) {
@@ -281,11 +283,20 @@ export const GroupsPage = ({ embedded = false }) => {
   }, [editingPageTitle]);
 
   const loadGroups = async () => {
-    const allGroups = await db.groups.toArray();
-    const filtered = customPageId 
-      ? allGroups.filter(g => g.customPageId === customPageId)
-      : allGroups.filter(g => !g.customPageId);
-    setGroups(filtered.sort((a, b) => (a.order || 0) - (b.order || 0)));
+    let allGroups;
+    
+    if (activeCustomPageId) {
+      allGroups = await db.groups
+        .where('customPageId')
+        .equals(parseInt(activeCustomPageId))
+        .toArray();
+    } else {
+      allGroups = await db.groups
+        .filter(g => !g.customPageId)
+        .toArray();
+    }
+    
+    setGroups(allGroups.sort((a, b) => (a.order || 0) - (b.order || 0)));
 
     const allObjects = await db.objects.toArray();
     setObjects(allObjects);
@@ -299,7 +310,11 @@ export const GroupsPage = ({ embedded = false }) => {
     if (newGroupName.trim()) {
       const order = groups.length;
       const groupData = { name: newGroupName.trim(), order };
-      if (customPageId) groupData.customPageId = customPageId;
+      
+      if (activeCustomPageId) {
+        groupData.customPageId = parseInt(activeCustomPageId);
+      }
+      
       await db.groups.add(groupData);
       setNewGroupName('');
       loadGroups();
@@ -342,22 +357,13 @@ export const GroupsPage = ({ embedded = false }) => {
   };
 
   const viewGroup = (group) => {
-    setSelectedGroup(group);
-    const pageName = customPageId ? 'Custom Group' : 'Groups';
-    setBreadcrumbs([{ name: pageName }, { name: group.name }]);
-    setCurrentPage('group-detail');
+    // Navigate to the group detail page
+    navigate(`/group/${group.id}`);
   };
 
   const viewObject = (object) => {
-    // open the object detail page - expects setSelectedObject in store
-    if (typeof setSelectedObject === 'function') {
-      setSelectedObject(object);
-      setBreadcrumbs([{ name: 'Groups' }, { name: object.name || `Object ${object.id}` }]);
-      setCurrentPage('object-detail');
-    } else {
-      // fallback
-      alert('setSelectedObject not available in store. Implement navigation to object detail.');
-    }
+    // Navigate to the object detail page
+    navigate(`/object/${object.id}`);
   };
 
   const handleDragStart = (event) => {
@@ -545,7 +551,7 @@ export const GroupsPage = ({ embedded = false }) => {
 
   // Save pageTitle to localStorage when editing finishes
   const persistPageTitle = () => {
-    const key = `groupsPageTitle_${customPageId ?? 'default'}`;
+    const key = `groupsPageTitle_${activeCustomPageId ?? 'default'}`;
     localStorage.setItem(key, pageTitle);
   };
 

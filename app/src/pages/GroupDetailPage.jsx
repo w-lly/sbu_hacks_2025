@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { themes } from '../utils/themes';
@@ -44,7 +44,7 @@ const SortableObject = ({ object, onClick, onDelete, theme }) => {
     <div
       ref={setNodeRef}
       style={style}
-      className={`${t.object} p-4 sm:p-5 rounded-xl shadow hover:shadow-lg transition-all duration-200 
+      className={`${t.object || t.card} p-4 sm:p-5 rounded-xl shadow hover:shadow-lg transition-all duration-200 
         ${isDragging ? 'z-50 scale-105' : 'z-0'} cursor-pointer group relative`}
     >
       <div className="flex items-start gap-2">
@@ -80,18 +80,11 @@ const SortableObject = ({ object, onClick, onDelete, theme }) => {
 
 export const GroupDetailPage = () => {
   const navigate = useNavigate();
-  const { 
-    theme, 
-    selectedGroup, 
-    breadcrumbs,
-    setBreadcrumbs,
-    setSelectedObject,
-    customPageId,
-    showSplitView
-  } = useAppStore();
+  const { groupId } = useParams();
+  const { theme, showSplitView } = useAppStore();
   
+  const [group, setGroup] = useState(null);
   const [objects, setObjects] = useState([]);
-  const [groups, setGroups] = useState([]);
   const [newObjectName, setNewObjectName] = useState('');
   const [activeId, setActiveId] = useState(null);
   const t = themes[theme];
@@ -108,29 +101,27 @@ export const GroupDetailPage = () => {
   );
 
   useEffect(() => {
-    if (selectedGroup) {
+    if (groupId) {
       loadData();
     }
-  }, [selectedGroup]);
+  }, [groupId]);
 
   const loadData = async () => {
-    const allObjects = await db.objects.toArray();
-    const filtered = allObjects.filter(o => o.groupId === selectedGroup.id);
-    setObjects(filtered.sort((a, b) => (a.order || 0) - (b.order || 0)));
+    // Load group
+    const groupData = await db.groups.get(parseInt(groupId));
+    setGroup(groupData);
 
-    // Load all groups for cross-panel drag
-    const allGroups = await db.groups.toArray();
-    const filteredGroups = customPageId 
-      ? allGroups.filter(g => g.customPageId === customPageId)
-      : allGroups.filter(g => !g.customPageId);
-    setGroups(filteredGroups);
+    // Load objects
+    const allObjects = await db.objects.toArray();
+    const filtered = allObjects.filter(o => o.groupId === parseInt(groupId));
+    setObjects(filtered.sort((a, b) => (a.order || 0) - (b.order || 0)));
   };
 
   const addObject = async () => {
     if (newObjectName.trim()) {
       const order = objects.length;
       await db.objects.add({ 
-        groupId: selectedGroup.id, 
+        groupId: parseInt(groupId), 
         name: newObjectName.trim(), 
         order 
       });
@@ -149,19 +140,14 @@ export const GroupDetailPage = () => {
   };
 
   const viewObject = (obj) => {
-    setSelectedObject(obj);
-    setBreadcrumbs([...breadcrumbs, { name: obj.name }]);
-    navigate('object-detail');
+    navigate(`/object/${obj.id}`);
   };
 
   const goBack = () => {
-    if (showSplitView) {
-      navigate('menu');
-      setBreadcrumbs([]);
+    if (group?.customPageId) {
+      navigate(`/groups/${group.customPageId}`);
     } else {
-      const prevPage = customPageId ? `custom-${customPageId}` : 'groups';
-      navigate(prevPage);
-      setBreadcrumbs([]);
+      navigate('/groups');
     }
   };
 
@@ -176,24 +162,9 @@ export const GroupDetailPage = () => {
     if (!over) return;
 
     const activeObjectId = parseInt(active.id.toString().replace('object-', ''));
-    const activeObject = objects.find(o => o.id === activeObjectId);
 
-    // Check if dropped on a group (cross-panel drag)
-    if (over.id.toString().startsWith('group-')) {
-      const targetGroupId = parseInt(over.id.toString().replace('group-', ''));
-      
-      if (activeObject && activeObject.groupId !== targetGroupId) {
-        await db.objects.update(activeObjectId, { groupId: targetGroupId });
-        loadData();
-        
-        // Reload groups view if in split view
-        if (showSplitView) {
-          window.dispatchEvent(new CustomEvent('reload-groups'));
-        }
-      }
-    }
     // Reorder within same group
-    else if (over.id.toString().startsWith('object-')) {
+    if (over.id.toString().startsWith('object-')) {
       const overObjectId = parseInt(over.id.toString().replace('object-', ''));
 
       if (activeObjectId !== overObjectId) {
@@ -214,7 +185,13 @@ export const GroupDetailPage = () => {
     ? objects.find(o => o.id === parseInt(activeId.toString().replace('object-', '')))
     : null;
 
-  if (!selectedGroup) return null;
+  if (!group) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <DndContext
@@ -234,15 +211,7 @@ export const GroupDetailPage = () => {
               <ChevronLeft size={24} />
             </button>
             <div>
-              <div className={`text-xs sm:text-sm ${t.textSecondary} flex items-center gap-1`}>
-                {breadcrumbs.slice(0, -1).map((crumb, idx) => (
-                  <React.Fragment key={idx}>
-                    <span>{crumb.name}</span>
-                    {idx < breadcrumbs.length - 2 && <ChevronRight size={12} />}
-                  </React.Fragment>
-                ))}
-              </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">{selectedGroup.name}</h1>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">{group.name}</h1>
             </div>
           </div>
 
@@ -285,7 +254,7 @@ export const GroupDetailPage = () => {
 
           <DragOverlay>
             {activeObject ? (
-              <div className={`${t.object} p-4 sm:p-5 rounded-xl shadow-2xl scale-105`}>
+              <div className={`${t.object || t.card} p-4 sm:p-5 rounded-xl shadow-2xl scale-105`}>
                 <h4 className="font-semibold text-sm sm:text-base">{activeObject.name}</h4>
               </div>
             ) : null}
@@ -294,12 +263,6 @@ export const GroupDetailPage = () => {
           {objects.length === 0 && (
             <div className={`${t.card} p-8 rounded-xl text-center ${t.textSecondary} mt-4`}>
               <p>No objects yet. Create one above to get started!</p>
-            </div>
-          )}
-
-          {showSplitView && objects.length > 0 && (
-            <div className={`${t.card} p-4 rounded-xl mt-6 text-center ${t.textSecondary} text-sm`}>
-              <p>💡 Tip: Drag objects to groups in the left panel to move them</p>
             </div>
           )}
         </div>
