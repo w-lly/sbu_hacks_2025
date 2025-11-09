@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckSquare, FolderOpen, Plus, Trash2, X, Maximize2, ArrowLeft } from 'lucide-react';
+import { CheckSquare, FolderOpen, Plus, Trash2, X, Maximize2, Clock } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { themes } from '../utils/themes';
 import { Avatar } from '../components/Avatar';
@@ -9,6 +9,7 @@ import { GroupsPage } from './GroupsPage';
 import leftArrow from '../components/arrow.gif';
 import x from '../components/x.gif';
 import { useNavigate } from 'react-router-dom';
+import { StudyTimerPage } from "./StudyTimerPage";
 
 export const MenuPage = () => {
   const navigate = useNavigate();
@@ -162,6 +163,12 @@ export const MenuPage = () => {
       colorClass: 'bg-themesecondary',
     },
     {
+      type: "studyTimer",
+      label: "Study Timer",
+      icon: Clock,
+      colorClass: "bg-themeaccent",
+    },
+    {
       type: 'groups',
       label: 'Groups',
       icon: FolderOpen,
@@ -183,6 +190,8 @@ export const MenuPage = () => {
     switch (selectedMenuItem.type) {
       case 'todos':
         return <TodoPage embedded />;
+      case "studyTimer":
+        return <StudyTimerPage />;
       case 'groups':
       case 'custom':
         return <GroupsPage embedded />;
