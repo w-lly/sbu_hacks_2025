@@ -22,10 +22,9 @@ export const MenuPage = () => {
     splitViewFullscreen,
     currentPage,
     setCurrentPage,
-    setCustomPageId,
+    setCustomPageId
   } = useAppStore();
-
-  const navigate = useNavigate();
+  
   const [customPages, setCustomPages] = useState([]);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const [editingColorPage, setEditingColorPage] = useState(null);
@@ -47,7 +46,7 @@ export const MenuPage = () => {
 
   // Add new custom page with default accent color
   const addCustomPage = async () => {
-    const name = prompt("Custom page name:");
+    const name = prompt('Custom page name:');
     if (name && name.trim()) {
       const order = customPages.length;
       await db.customPages.add({
@@ -63,7 +62,7 @@ export const MenuPage = () => {
   // Delete custom page and its related data
   const deleteCustomPage = async (id, e) => {
     e.stopPropagation();
-    if (confirm("Delete this custom page?")) {
+    if (confirm('Delete this custom page?')) {
       await db.customPages.delete(id);
       
       const groups = await db.groups.where('customPageId').equals(id).toArray();
@@ -72,11 +71,11 @@ export const MenuPage = () => {
         const objects = await db.objects.where('groupId').equals(group.id).toArray();
         for (const obj of objects) {
           await db.objects.delete(obj.id);
-          await db.objectFields.where("objectId").equals(obj.id).delete();
-          await db.files.where("objectId").equals(obj.id).delete();
+          await db.objectFields.where('objectId').equals(obj.id).delete();
+          await db.files.where('objectId').equals(obj.id).delete();
         }
       }
-
+      
       if (selectedMenuItem?.id === id) {
         setSelectedMenuItem(null);
         setShowSplitView(false);
@@ -98,9 +97,9 @@ export const MenuPage = () => {
   const handleMenuItemClick = (item) => {
     setSelectedMenuItem(item);
     setShowSplitView(true);
-    if (item.type === "custom") {
+    if (item.type === 'custom') {
       setCustomPageId(item.id);
-      setCurrentPage("groups");
+      setCurrentPage('groups');
     } else {
       setCustomPageId(item.id);
     }
@@ -127,7 +126,7 @@ export const MenuPage = () => {
   const closeSplitView = () => {
     setShowSplitView(false);
     setSelectedMenuItem(null);
-    setCurrentPage("menu");
+    setCurrentPage('menu');
   };
 
   const handleZoomIn = () => {
@@ -189,7 +188,7 @@ export const MenuPage = () => {
     if (!selectedMenuItem) return null;
 
     switch (selectedMenuItem.type) {
-      case "todos":
+      case 'todos':
         return <TodoPage embedded />;
       case "studyTimer":
         return <StudyTimerPage />;
@@ -323,7 +322,7 @@ export const MenuPage = () => {
               );
             })}
 
-            {/* Add Custom Page */}
+            {/* Add Custom Page Button */}
             <button
               onClick={addCustomPage}
               className={`${t.card} p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-2xl 
@@ -341,15 +340,11 @@ export const MenuPage = () => {
         </div>
       </div>
 
-      {/* Right Panel */}
+      {/* Right Panel - Selected Page Content */}
       {showSplitView && (
-        <div
-          className={`${
-            splitViewFullscreen ? "w-full" : "hidden md:block md:w-2/3"
-          } 
-            ${t.panel} border-l ${
-            t.divider
-          } relative transition-all duration-300
+        <div 
+          className={`${splitViewFullscreen ? 'w-full' : 'hidden md:block md:w-2/3'} 
+            ${t.panel} border-l ${t.divider} relative transition-all duration-300
             animate-slide-in-right`}
         >
           {/* Close and Zoom buttons */}
@@ -376,13 +371,13 @@ export const MenuPage = () => {
             </button>
           </div>
 
+          {/* Content */}
           <div className="h-full overflow-y-auto pt-16">
             {renderRightView()}
           </div>
         </div>
       )}
 
-      {/* Animation */}
       <style jsx>{`
         @keyframes slideInRight {
           from {

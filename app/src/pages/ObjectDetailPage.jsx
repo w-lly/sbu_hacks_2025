@@ -6,14 +6,7 @@ import { themes } from '../utils/themes';
 import { db } from '../db/database';
 import leftArrow from '../components/arrow.gif';
 
-const FeatureCard = ({
-  field,
-  objects,
-  onUpdate,
-  onDelete,
-  onNavigate,
-  theme,
-}) => {
+const FeatureCard = ({ field, objects, onUpdate, onDelete, onNavigate, theme }) => {
   const t = themes[theme];
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(field.value);
@@ -25,30 +18,26 @@ const FeatureCard = ({
 
   const getIcon = () => {
     switch (field.type) {
-      case "link":
+      case 'link':
         return <Link2 size={20} className="text-blue-500" />;
-      case "file":
-        return field.value?.startsWith("data:image") ? (
-          <Image size={20} className="text-green-500" />
-        ) : (
-          <FileText size={20} className="text-purple-500" />
-        );
+      case 'file':
+        return field.value?.startsWith('data:image') 
+          ? <Image size={20} className="text-green-500" />
+          : <FileText size={20} className="text-purple-500" />;
       default:
         return <FileText size={20} className="text-gray-500" />;
     }
   };
 
   return (
-    <div
-      className={`${t.card} p-4 sm:p-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 group`}
-    >
+    <div className={`${t.card} p-4 sm:p-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 group`}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           {getIcon()}
           <h3 className="font-semibold text-sm sm:text-base">{field.label}</h3>
         </div>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          {field.type === "text" && (
+          {field.type === 'text' && (
             <button
               onClick={() => setIsEditing(!isEditing)}
               className="p-1 hover:bg-gray-100 rounded transition-colors"
@@ -66,18 +55,15 @@ const FeatureCard = ({
       </div>
 
       <div className="mt-2">
-        {field.type === "link" ? (
+        {field.type === 'link' ? (
           <button
             onClick={() => onNavigate(field.value)}
             className="text-blue-500 hover:text-blue-700 hover:underline flex items-center gap-1 text-sm sm:text-base"
           >
-            <span>
-              {objects.find((o) => o.id === parseInt(field.value))?.name ||
-                "Unknown"}
-            </span>
+            <span>{objects.find(o => o.id === parseInt(field.value))?.name || 'Unknown'}</span>
             <ChevronRight size={16} />
           </button>
-        ) : field.type === "file" ? (
+        ) : field.type === 'file' ? (
           <a
             href={field.value}
             download={field.label}
@@ -106,17 +92,14 @@ const FeatureCard = ({
                   setIsEditing(false);
                 }}
                 className={`px-4 py-2 rounded-lg ${t.buttonSecondary || t.card} text-sm`}
-                className={`px-4 py-2 rounded-lg ${t.buttonSecondary || t.card} text-sm`}
               >
                 Cancel
               </button>
             </div>
           </div>
         ) : (
-          <p
-            className={`${t.textSecondary} text-sm sm:text-base whitespace-pre-wrap`}
-          >
-            {field.value || "No content"}
+          <p className={`${t.textSecondary} text-sm sm:text-base whitespace-pre-wrap`}>
+            {field.value || 'No content'}
           </p>
         )}
       </div>
@@ -130,11 +113,6 @@ export const ObjectDetailPage = () => {
   const { theme } = useAppStore();
   
   const [object, setObject] = useState(null);
-  const navigate = useNavigate();
-  const { objectId } = useParams();
-  const { theme } = useAppStore();
-  
-  const [object, setObject] = useState(null);
   const [fields, setFields] = useState([]);
   const [files, setFiles] = useState([]);
   const [objects, setObjects] = useState([]);
@@ -143,10 +121,8 @@ export const ObjectDetailPage = () => {
 
   useEffect(() => {
     if (objectId) {
-    if (objectId) {
       loadObjectData();
     }
-  }, [objectId]);
   }, [objectId]);
 
   const loadObjectData = async () => {
@@ -155,49 +131,39 @@ export const ObjectDetailPage = () => {
     setObject(objectData);
 
     // Load fields
-    // Load object
-    const objectData = await db.objects.get(parseInt(objectId));
-    setObject(objectData);
-
-    // Load fields
     const allFields = await db.objectFields.toArray();
-    const f = allFields.filter(field => field.objectId === parseInt(objectId));
     const f = allFields.filter(field => field.objectId === parseInt(objectId));
     setFields(f);
 
     // Load files
-    // Load files
     const allFiles = await db.files.toArray();
-    const fl = allFiles.filter(file => file.objectId === parseInt(objectId));
     const fl = allFiles.filter(file => file.objectId === parseInt(objectId));
     setFiles(fl);
 
-    // Load all objects for linking
     // Load all objects for linking
     const o = await db.objects.toArray();
     setObjects(o);
   };
 
   const addField = async (type) => {
-    const label = prompt("Field label:");
+    const label = prompt('Field label:');
     if (!label || !label.trim()) return;
 
-    let value = "";
-    if (type === "link") {
-      const linkedObjName = prompt("Link to object (enter name):");
-      const linkedObj = objects.find((o) => o.name === linkedObjName);
+    let value = '';
+    if (type === 'link') {
+      const linkedObjName = prompt('Link to object (enter name):');
+      const linkedObj = objects.find(o => o.name === linkedObjName);
       if (linkedObj) {
         value = linkedObj.id.toString();
       } else {
-        alert("Object not found");
+        alert('Object not found');
         return;
       }
-    } else if (type === "text") {
-      value = prompt("Field value:") || "";
+    } else if (type === 'text') {
+      value = prompt('Field value:') || '';
     }
     
     await db.objectFields.add({ 
-      objectId: parseInt(objectId), 
       objectId: parseInt(objectId), 
       type, 
       label: label.trim(), 
@@ -215,10 +181,9 @@ export const ObjectDetailPage = () => {
     reader.onload = async (e) => {
       await db.objectFields.add({
         objectId: parseInt(objectId),
-        objectId: parseInt(objectId),
         type: 'file',
         label: file.name,
-        value: e.target.result,
+        value: e.target.result
       });
       loadObjectData();
     };
@@ -227,7 +192,7 @@ export const ObjectDetailPage = () => {
   };
 
   const deleteField = async (id) => {
-    if (confirm("Delete this field?")) {
+    if (confirm('Delete this field?')) {
       await db.objectFields.delete(id);
       loadObjectData();
     }
@@ -241,8 +206,6 @@ export const ObjectDetailPage = () => {
   const navigateToLinkedObject = async (fieldValue) => {
     const linkedObjId = parseInt(fieldValue);
     navigate(`/object/${linkedObjId}`);
-    const linkedObjId = parseInt(fieldValue);
-    navigate(`/object/${linkedObjId}`);
   };
 
   const goBack = () => {
@@ -251,20 +214,8 @@ export const ObjectDetailPage = () => {
     } else {
       navigate('/groups');
     }
-    if (object?.groupId) {
-      navigate(`/group/${object.groupId}`);
-    } else {
-      navigate('/groups');
-    }
   };
 
-  if (!object) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-500">Loading...</div>
-      </div>
-    );
-  }
   if (!object) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -278,8 +229,8 @@ export const ObjectDetailPage = () => {
       <div className="w-full mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <button
-            onClick={goBack}
+          <button 
+            onClick={goBack} 
             className={`p-2 rounded-xl ${t.card} shadow hover:shadow-lg transition-all`}
           >
             <img
@@ -291,7 +242,6 @@ export const ObjectDetailPage = () => {
             />
           </button>
           <div className="flex-1">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mt-1">{object.name}</h1>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mt-1">{object.name}</h1>
           </div>
         </div>
@@ -308,20 +258,20 @@ export const ObjectDetailPage = () => {
 
           {showAddMenu && (
             <>
-              <div
-                className="fixed inset-0 z-10"
+              <div 
+                className="fixed inset-0 z-10" 
                 onClick={() => setShowAddMenu(false)}
               />
               <div className={`absolute top-full left-0 bg-themebg mt-2 ${t.card} rounded-xl shadow-xl z-20 overflow-hidden min-w-48`}>
                 <button
-                  onClick={() => addField("text")}
+                  onClick={() => addField('text')}
                   className="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
                 >
                   <FileText size={18} />
                   <span>Text Field</span>
                 </button>
                 <button
-                  onClick={() => addField("link")}
+                  onClick={() => addField('link')}
                   className="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
                 >
                   <Link2 size={18} />
@@ -353,9 +303,7 @@ export const ObjectDetailPage = () => {
         </div>
 
         {fields.length === 0 && (
-          <div
-            className={`${t.card} p-8 rounded-xl text-center ${t.textSecondary}`}
-          >
+          <div className={`${t.card} p-8 rounded-xl text-center ${t.textSecondary}`}>
             <p>No features yet. Add one above to get started!</p>
           </div>
         )}
