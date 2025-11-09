@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { useAppStore } from '../store/useAppStore';
-import umiGif from '../components/umi.gif';
+import React, { useState } from "react";
+import { useAppStore } from "../store/useAppStore";
+import { useNavigate } from "react-router-dom";
+import umiGif from "../components/umi.gif";
 
 export const MainPage = () => {
-  const { setCurrentPage } = useAppStore();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleEnter = () => {
@@ -12,11 +13,11 @@ export const MainPage = () => {
 
     // Simulate loading (1.8 seconds), then go to Menu page
     setTimeout(() => {
-      setCurrentPage('menu');
+      navigate("menu");
     }, 1800);
   };
 
-if (isLoading) {
+  if (isLoading) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-themebg">
       <img

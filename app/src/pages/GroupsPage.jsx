@@ -308,16 +308,8 @@ export const GroupsPage = ({ embedded = false }) => {
 
   const t = themes[theme];
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  // Use URL param if available, otherwise use store value
+  const activeCustomPageId = customPageId || storeCustomPageId;
 
   useEffect(() => {
     loadGroups();
@@ -351,10 +343,18 @@ export const GroupsPage = ({ embedded = false }) => {
   };
 
   const addGroup = async () => {
-    if (newGroupName.trim()) {
+    const name = prompt('Group name:');
+    if (name && name.trim()) {
       const order = groups.length;
-      const groupData = { name: newGroupName.trim(), order };
-      if (customPageId) groupData.customPageId = customPageId;
+      const groupData = {
+        name: name.trim(),
+        order
+      };
+      
+      if (activeCustomPageId) {
+        groupData.customPageId = parseInt(activeCustomPageId);
+      }
+      
       await db.groups.add(groupData);
       setNewGroupName("");
       loadGroups();
@@ -707,8 +707,8 @@ export const GroupsPage = ({ embedded = false }) => {
             onClick={addGroup}
             className={`px-4 sm:px-6 py-3 rounded-xl ${t.button} shadow hover:shadow-lg transition-all whitespace-nowrap`}
           >
-            <span className="hidden sm:inline">Add Group</span>
-            <Plus size={20} className="sm:hidden" />
+            <FolderPlus size={32} className="text-gray-400" />
+            <span className="font-semibold">Add Group</span>
           </button>
         </div>
 

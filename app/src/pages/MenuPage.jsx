@@ -15,7 +15,7 @@ import { TodoPage } from "./TodoPage";
 import { GroupsPage } from "./GroupsPage";
 import leftArrow from "../components/arrow.gif";
 import x from "../components/x.gif";
-
+import { useNavigate } from "react-router-dom";
 export const MenuPage = () => {
   const {
     theme,
@@ -29,6 +29,7 @@ export const MenuPage = () => {
     setCustomPageId,
   } = useAppStore();
 
+  const navigate = useNavigate();
   const [customPages, setCustomPages] = useState([]);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const [editingColorPage, setEditingColorPage] = useState(null);
@@ -105,7 +106,7 @@ export const MenuPage = () => {
       setCustomPageId(item.id);
       setCurrentPage("groups");
     } else {
-      setCurrentPage(item.type);
+      setCustomPageId(item.id);
     }
   };
 
@@ -116,7 +117,7 @@ export const MenuPage = () => {
   };
 
   const goBackToMain = () => {
-    setCurrentPage("main");
+    navigate("main");
   };
 
   // Default colors for built-in items

@@ -113,7 +113,7 @@ const FeatureCard = ({
                   setEditValue(field.value);
                   setIsEditing(false);
                 }}
-                className={`px-4 py-2 rounded-lg ${t.buttonSecondary} text-sm`}
+                className={`px-4 py-2 rounded-lg ${t.buttonSecondary || t.card} text-sm`}
               >
                 Cancel
               </button>
@@ -132,15 +132,11 @@ const FeatureCard = ({
 };
 
 export const ObjectDetailPage = () => {
-  const {
-    theme,
-    selectedObject,
-    setCurrentPage,
-    breadcrumbs,
-    setBreadcrumbs,
-    setSelectedObject,
-  } = useAppStore();
-
+  const navigate = useNavigate();
+  const { objectId } = useParams();
+  const { theme } = useAppStore();
+  
+  const [object, setObject] = useState(null);
   const [fields, setFields] = useState([]);
   const [files, setFiles] = useState([]);
   const [objects, setObjects] = useState([]);
@@ -148,20 +144,27 @@ export const ObjectDetailPage = () => {
   const t = themes[theme];
 
   useEffect(() => {
-    if (selectedObject) {
+    if (objectId) {
       loadObjectData();
     }
-  }, [selectedObject]);
+  }, [objectId]);
 
   const loadObjectData = async () => {
+    // Load object
+    const objectData = await db.objects.get(parseInt(objectId));
+    setObject(objectData);
+
+    // Load fields
     const allFields = await db.objectFields.toArray();
-    const f = allFields.filter((field) => field.objectId === selectedObject.id);
+    const f = allFields.filter(field => field.objectId === parseInt(objectId));
     setFields(f);
 
+    // Load files
     const allFiles = await db.files.toArray();
-    const fl = allFiles.filter((file) => file.objectId === selectedObject.id);
+    const fl = allFiles.filter(file => file.objectId === parseInt(objectId));
     setFiles(fl);
 
+    // Load all objects for linking
     const o = await db.objects.toArray();
     setObjects(o);
   };
@@ -183,12 +186,12 @@ export const ObjectDetailPage = () => {
     } else if (type === "text") {
       value = prompt("Field value:") || "";
     }
-
-    await db.objectFields.add({
-      objectId: selectedObject.id,
-      type,
-      label: label.trim(),
-      value,
+    
+    await db.objectFields.add({ 
+      objectId: parseInt(objectId), 
+      type, 
+      label: label.trim(), 
+      value 
     });
     loadObjectData();
     setShowAddMenu(false);
@@ -201,8 +204,8 @@ export const ObjectDetailPage = () => {
     const reader = new FileReader();
     reader.onload = async (e) => {
       await db.objectFields.add({
-        objectId: selectedObject.id,
-        type: "file",
+        objectId: parseInt(objectId),
+        type: 'file',
         label: file.name,
         value: e.target.result,
       });
@@ -225,19 +228,25 @@ export const ObjectDetailPage = () => {
   };
 
   const navigateToLinkedObject = async (fieldValue) => {
-    const linkedObj = objects.find((o) => o.id === parseInt(fieldValue));
-    if (linkedObj) {
-      setSelectedObject(linkedObj);
-      setBreadcrumbs([...breadcrumbs, { name: linkedObj.name }]);
-    }
+    const linkedObjId = parseInt(fieldValue);
+    navigate(`/object/${linkedObjId}`);
   };
 
   const goBack = () => {
-    setBreadcrumbs(breadcrumbs.slice(0, -1));
-    setCurrentPage("group-detail");
+    if (object?.groupId) {
+      navigate(`/group/${object.groupId}`);
+    } else {
+      navigate('/groups');
+    }
   };
 
-  if (!selectedObject) return null;
+  if (!object) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-4 sm:p-6 md:p-8">
@@ -257,19 +266,7 @@ export const ObjectDetailPage = () => {
             ></img>
           </button>
           <div className="flex-1">
-            <div
-              className={`text-xs sm:text-sm ${t.textSecondary} flex items-center gap-1 flex-wrap`}
-            >
-              {breadcrumbs.map((crumb, idx) => (
-                <React.Fragment key={idx}>
-                  <span>{crumb.name}</span>
-                  {idx < breadcrumbs.length - 1 && <ChevronRight size={12} />}
-                </React.Fragment>
-              ))}
-            </div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mt-1">
-              {selectedObject.name}
-            </h1>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mt-1">{object.name}</h1>
           </div>
         </div>
 
