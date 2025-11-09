@@ -6,8 +6,10 @@ import { Avatar } from '../components/Avatar';
 import { db } from '../db/database';
 import { TodoPage } from './TodoPage';
 import { GroupsPage } from './GroupsPage';
+import { useNavigate } from 'react-router-dom';
 
 export const MenuPage = () => {
+  const navigate = useNavigate();
   const { 
     theme, 
     avatarConfig, 
@@ -75,6 +77,7 @@ export const MenuPage = () => {
       setCustomPageId(item.id);
       setCurrentPage('groups');
     } else {
+      setCustomPageId(item.id);
       setCurrentPage(item.type);
     }
   };

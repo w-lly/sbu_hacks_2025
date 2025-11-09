@@ -1,13 +1,14 @@
 import React from 'react';
 import { useAppStore } from '../store/useAppStore';
+import { useNavigate } from 'react-router-dom';
 
 export const MainPage = () => {
-  const { setCurrentPage } = useAppStore();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <button
-        onClick={() => setCurrentPage('menu')}
+        onClick={() => navigate('menu')}
         className="group relative"
       >
         {/* Glow effect */}

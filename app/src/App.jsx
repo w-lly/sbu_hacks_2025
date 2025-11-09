@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAppStore } from './store/useAppStore';
 import { db } from './db/database';
 import { defaultAvatarConfig } from './utils/avatarOptions';
@@ -13,7 +14,6 @@ import { ObjectDetailPage } from './pages/ObjectDetailPage';
 
 export default function App() {
   const { 
-    currentPage,
     theme,
     setTheme,
     avatarConfig,
@@ -70,44 +70,18 @@ export default function App() {
     );
   }
 
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'main':
-        return <MainPage />;
-      case 'menu':
-        return <MenuPage />;
-      case 'todos':
-        return (
-          <Layout>
-            <TodoPage />
-          </Layout>
-        );
-      case 'groups':
-        return (
-          <Layout>
-            <GroupsPage />
-          </Layout>
-        );
-      case 'group-detail':
-        return (
-          <Layout>
-            <GroupDetailPage />
-          </Layout>
-        );
-      case 'object-detail':
-        return (
-          <Layout>
-            <ObjectDetailPage />
-          </Layout>
-        );
-      default:
-        return <MainPage />;
-    }
-  };
-
   return (
-    <>
-      {renderPage()}
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/menu" element={<MenuPage />} />
+        <Route path="/todos" element={<Layout><TodoPage /></Layout>} />
+        <Route path="/groups" element={<Layout><GroupsPage /></Layout>} />
+        <Route path="/groups/:customPageId" element={<Layout><GroupsPage /></Layout>} />
+        <Route path="/group/:groupId" element={<Layout><GroupDetailPage /></Layout>} />
+        <Route path="/object/:objectId" element={<Layout><ObjectDetailPage /></Layout>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
       
       {/* Avatar Creator Modal */}
       {showAvatarCreator && avatarConfig && (
@@ -117,6 +91,6 @@ export default function App() {
           onCancel={() => setShowAvatarCreator(false)}
         />
       )}
-    </>
+    </BrowserRouter>
   );
 }
