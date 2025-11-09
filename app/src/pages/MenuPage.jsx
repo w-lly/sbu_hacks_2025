@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckSquare, FolderOpen, Plus, Trash2, X } from 'lucide-react';
+import { CheckSquare, FolderOpen, Plus, Trash2, X, Maximize2, Minimize2 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { themes } from '../utils/themes';
 import { Avatar } from '../components/Avatar';
@@ -25,9 +25,16 @@ export const MenuPage = () => {
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const t = themes[theme];
 
-  useEffect(() => {
-    loadCustomPages();
-  }, []);
+useEffect(() => {
+  loadCustomPages();
+}, []);
+
+// Add this new useEffect
+useEffect(() => {
+  // Close split view when coming back to menu page
+  setShowSplitView(false);
+  setSelectedMenuItem(null);
+}, []); // Run only on mount
 
   const loadCustomPages = async () => {
     const pages = await db.customPages.toArray();
@@ -70,19 +77,61 @@ export const MenuPage = () => {
   };
 
   const handleMenuItemClick = (item) => {
-    setSelectedMenuItem(item);
-    setShowSplitView(true);
-    if (item.type === 'custom') {
+  setSelectedMenuItem(item);
+  setShowSplitView(true);
+  if (item.type === 'custom') {
+    setCustomPageId(item.id);
+  } else {
+    setCustomPageId(item.id);
+  }
+};
+
+// Add this new function for double-click
+const handleMenuItemDoubleClick = (item) => {
+  switch (item.type) {
+    case 'todos':
+      navigate('/todos');
+      break;
+    case 'groups':
+      navigate('/groups');
+      break;
+    case 'custom':
       setCustomPageId(item.id);
-    } else {
-      setCustomPageId(item.id);
-    }
-  };
+      navigate(`/groups/${item.id}`);
+      break;
+    default:
+      break;
+  }
+};
 
   const closeSplitView = () => {
-    setShowSplitView(false);
-    setSelectedMenuItem(null);
-  };
+  setShowSplitView(false);
+  setSelectedMenuItem(null);
+};
+
+const handleZoomIn = () => {
+  // This should toggle the fullscreen state in your store
+  // You'll need to add a method to toggle splitViewFullscreen
+  // For now, you can navigate to make it fullscreen
+  if (!selectedMenuItem) return;
+
+  switch (selectedMenuItem.type) {
+    case 'todos':
+      navigate('/todos');
+      closeSplitView();
+      break;
+    case 'groups':
+      navigate('/groups');
+      closeSplitView();
+      break;
+    case 'custom':
+      navigate(`/groups/${selectedMenuItem.id}`);
+      closeSplitView();
+      break;
+    default:
+      break;
+  }
+};
 
   const menuItems = [
     { type: 'todos', label: 'To-Do List', icon: CheckSquare, color: 'from-purple-400 to-pink-400' },
@@ -136,17 +185,18 @@ export const MenuPage = () => {
               return (
                 <div key={idx} className="relative group">
                   <button
-                    onClick={() => handleMenuItemClick(item)}
-                    className={`w-full ${t.card} p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-2xl 
-                      transition-all duration-300 flex flex-col items-center gap-3 sm:gap-4
-                      hover:scale-105 ${selectedMenuItem?.label === item.label ? 'ring-4 ring-purple-400' : ''}`}
-                  >
-                    <div className={`p-3 sm:p-4 rounded-full bg-gradient-to-br ${item.color}`}>
-                      <Icon size={32} className="text-white sm:w-12 sm:h-12" />
-                    </div>
-                    <span className="font-semibold text-center text-sm sm:text-base">{item.label}</span>
-                  </button>
-                  
+                  onClick={() => handleMenuItemClick(item)}
+                  onDoubleClick={() => handleMenuItemDoubleClick(item)}
+                  className={`w-full ${t.card} p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-2xl 
+                    transition-all duration-300 flex flex-col items-center gap-3 sm:gap-4
+                    hover:scale-105 ${selectedMenuItem?.label === item.label ? 'ring-4 ring-purple-400' : ''}`}
+                >
+                  <div className={`p-3 sm:p-4 rounded-full bg-gradient-to-br ${item.color}`}>
+                    <Icon size={32} className="text-white sm:w-12 sm:h-12" />
+                  </div>
+                  <span className="font-semibold text-center text-sm sm:text-base">{item.label}</span>
+                </button>
+                                  
                   {item.type === 'custom' && (
                     <button
                       onClick={(e) => deleteCustomPage(item.id, e)}
@@ -184,12 +234,23 @@ export const MenuPage = () => {
             animate-slide-in-right`}
         >
           {/* Close button */}
-          <button
-            onClick={closeSplitView}
-            className={`absolute top-4 left-4 z-10 p-2 rounded-full ${t.card} shadow-lg hover:shadow-xl transition-all`}
-          >
-            <X size={20} />
-          </button>
+          {/* Close and Zoom buttons */}
+          <div className="absolute top-4 left-4 z-10 flex gap-2">
+            <button
+              onClick={closeSplitView}
+              className={`p-2 rounded-full ${t.card} shadow-lg hover:shadow-xl transition-all`}
+              title="Close"
+            >
+              <X size={20} />
+            </button>
+            <button
+              onClick={handleZoomIn}
+              className={`p-2 rounded-full ${t.card} shadow-lg hover:shadow-xl transition-all hover:scale-110`}
+              title="Open in full page"
+            >
+              <Maximize2 size={20} />
+            </button>
+          </div>
 
           {/* Content */}
           <div className="h-full overflow-y-auto pt-16">

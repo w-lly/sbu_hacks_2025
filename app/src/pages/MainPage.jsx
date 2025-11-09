@@ -4,13 +4,21 @@ import { useNavigate } from 'react-router-dom';
 
 export const MainPage = () => {
   const navigate = useNavigate();
+  const { setShowSplitView, setSelectedMenuItem } = useAppStore();
+
+  const handleEnter = () => {
+    setShowSplitView(false);
+    setSelectedMenuItem?.(null);
+    navigate('menu');
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <button
-        onClick={() => navigate('menu')}
+        onClick={handleEnter}
         className="group relative"
       >
+        {/* Rest of your button code */}
         {/* Glow effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-3xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-300" />
         
