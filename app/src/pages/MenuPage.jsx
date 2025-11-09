@@ -25,12 +25,13 @@ export const MenuPage = () => {
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const t = themes[theme];
 
-useEffect(() => {
-  loadCustomPages();
-}, []);
+// useEffect(() => {
+//   loadCustomPages();
+// }, []);
 
 // Add this new useEffect
 useEffect(() => {
+  loadCustomPages();
   // Close split view when coming back to menu page
   setShowSplitView(false);
   setSelectedMenuItem(null);
