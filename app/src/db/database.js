@@ -9,5 +9,7 @@ db.version(1).stores({
   files: '++id, objectId, name, type, data',
   todos: '++id, text, completed, createdAt',
   settings: 'key, value',
-  customPages: '++id, name, icon, order'
+  customPages: '++id, name, icon, order',
+  // In your database setup file
+  scheduleItems: '++id, groupId, objectId, objectName, day, time'
 });
