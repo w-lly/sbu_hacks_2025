@@ -1,5 +1,13 @@
-/* @import "tailwindcss";
+ @import "tailwindcss";
 
+ @layer base{
+  *{
+    font-family: 'Gaegu', serif;
+  }
+ }
+
+
+/*
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

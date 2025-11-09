@@ -65,6 +65,8 @@ const SortableTodo = ({ todo, onToggle, onDelete, theme }) => {
         </span>
         <button
           onClick={() => onDelete(todo.id)}
+        <button
+          onClick={() => onDelete(todo.id)}
           className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors"
         >
           <Trash2 size={18} />
@@ -75,6 +77,7 @@ const SortableTodo = ({ todo, onToggle, onDelete, theme }) => {
 };
 
 export const TodoPage = ({ embedded = false }) => {
+  const { theme, setCurrentPage } = useAppStore();
   const { theme, setCurrentPage } = useAppStore();
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState('');
@@ -170,6 +173,8 @@ export const TodoPage = ({ embedded = false }) => {
             placeholder="Add a task..."
             className={`flex-1 px-4 py-3 rounded-xl ${t.input} border focus:ring-2 focus:ring-purple-400 outline-none transition-all text-sm sm:text-base`}
           />
+          <button
+            onClick={addTodo}
           <button
             onClick={addTodo}
             className={`px-4 sm:px-6 py-3 rounded-xl ${t.button} shadow hover:shadow-lg transition-all`}
